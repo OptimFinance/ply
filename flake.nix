@@ -91,7 +91,7 @@
         "xhtml"
       ];
 
-      myhackages = system: compiler-nix-name: extra-hackage.mkHackagesFor system compiler-nix-name (
+      myhackages = system: compiler-nix-name: extra-hackage.mkHackageFor system compiler-nix-name (
         [
           "${inputs.flat}"
           "${inputs.cardano-prelude}/cardano-prelude"
@@ -107,7 +107,8 @@
       );
 
       # GENERAL
-      supportedSystems = with nixpkgs.lib.systems.supported; tier1 ++ tier2 ++ tier3;
+      # supportedSystems = with nixpkgs.lib.systems.supported; tier1 ++ tier2 ++ tier3;
+      supportedSystems = [ "x86_64-linux" ];
       perSystem = nixpkgs.lib.genAttrs supportedSystems;
 
       nixpkgsFor = system:
@@ -181,7 +182,8 @@
           in
           (nixpkgsFor system).haskell-nix.cabalProject' {
             inherit compiler-nix-name;
-            inherit (h) extra-hackages extra-hackage-tarballs;
+            extra-hackages = [ (import h.extra-hackage) ];
+            extra-hackage-tarballs = { myhackage = h.extra-hackage-tarball; };
             src = ./.;
             cabalProjectFileName = "cabal.project.core";
             cabalProjectLocal = ''
@@ -196,7 +198,7 @@
                   };
                 }
               )
-            ] ++ h.modules;
+            ] ++ [ h.module ];
             shell = {
               withHoogle = true;
 
@@ -231,7 +233,7 @@
             };
             stdDevEnv = mkDevEnv system; # TODO: parametrize with pkgs rather?
             hls = (plutarch.hlsFor compiler-nix-name system);
-            myPlutarchHackages = plutarch.inputs.haskell-nix-extra-hackage.mkHackagesFor system compiler-nix-name [
+            myPlutarchHackages = plutarch.inputs.haskell-nix-extra-hackage.mkHackageFor system compiler-nix-name [
               "${inputs.plutarch}"
             ];
           in
@@ -240,7 +242,9 @@
             src = ./.;
             cabalProjectFileName = "cabal.project.plutarch";
             index-state = "2022-06-01T00:00:00Z";
-            inherit (myPlutarchHackages) extra-hackages extra-hackage-tarballs modules;
+            extra-hackages = [ (import myPlutarchHackages.extra-hackage) ];
+            extra-hackage-tarballs = { myhackage = myPlutarchHackages.extra-hackage-tarball; };
+            modules = [ myPlutarchHackages.module ];
             shell = {
               withHoogle = true;
 
