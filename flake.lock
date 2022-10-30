@@ -1417,17 +1417,17 @@
         "secp256k1-haskell": "secp256k1-haskell"
       },
       "locked": {
-        "lastModified": 1658833185,
-        "narHash": "sha256-kOpzTnWkZge3+nCrb8jxGNACZDOq7pVz9NYKFZuxfz8=",
-        "owner": "Plutonomicon",
+        "lastModified": 1667000054,
+        "narHash": "sha256-OVCKEXeDODx1bMifbSL9Ee5NyAneZZXQp7z1J+Uc+6A=",
+        "owner": "OptimFinance",
         "repo": "plutarch-plutus",
-        "rev": "e23f2d9ecad8482e9971bd6ec1c772f9693014ce",
+        "rev": "0d4bdb2c3c3772b9ef5e3df8440825f38eaf6342",
         "type": "github"
       },
       "original": {
-        "owner": "Plutonomicon",
-        "ref": "staging",
+        "owner": "OptimFinance",
         "repo": "plutarch-plutus",
+        "rev": "0d4bdb2c3c3772b9ef5e3df8440825f38eaf6342",
         "type": "github"
       }
     },
@@ -1525,6 +1525,22 @@
         "type": "github"
       }
     },
+    "protolude_2": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1661644753,
+        "narHash": "sha256-bOHrB53h7XQd4vjubTzUsRHi9/qca8/JaF3fXNPX7/8=",
+        "owner": "protolude",
+        "repo": "protolude",
+        "rev": "cd83ebec004a6d44b60a2c87e13759365ff2d9a5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "protolude",
+        "repo": "protolude",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "cardano-base": "cardano-base",
@@ -1540,7 +1556,8 @@
         ],
         "plutarch": "plutarch",
         "plutus": "plutus_2",
-        "pre-commit-hooks": "pre-commit-hooks"
+        "pre-commit-hooks": "pre-commit-hooks",
+        "protolude": "protolude_2"
       }
     },
     "secp256k1-haskell": {

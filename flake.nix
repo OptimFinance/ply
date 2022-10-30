@@ -11,9 +11,10 @@
     iohk-nix.url = "github:input-output-hk/iohk-nix";
     iohk-nix.flake = false; # Bad Nix code
 
-    plutarch = {
-      url = "github:Plutonomicon/plutarch-plutus?ref=staging";
-    };
+    #    plutarch = {
+    #      url = "github:Plutonomicon/plutarch-plutus?ref=staging";
+    #    };
+    plutarch.url = "github:OptimFinance/plutarch-plutus/0d4bdb2c3c3772b9ef5e3df8440825f38eaf6342";
 
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
 
@@ -42,56 +43,62 @@
         "github:input-output-hk/flat/ee59880f47ab835dbd73bea0847dab7869fc20d8";
       flake = false;
     };
+
+    protolude = {
+      url = "github:protolude/protolude";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, haskell-nix, extra-hackage, iohk-nix, plutarch, pre-commit-hooks, ... }:
     let
-      # https://github.com/input-output-hk/haskell.nix/issues/1177
-      nonReinstallablePkgs = [
-        "array"
-        "array"
-        "base"
-        "binary"
-        "bytestring"
-        "Cabal"
-        "containers"
-        "deepseq"
-        "directory"
-        "exceptions"
-        "filepath"
-        "ghc"
-        "ghc-bignum"
-        "ghc-boot"
-        "ghc-boot"
-        "ghc-boot-th"
-        "ghc-compact"
-        "ghc-heap"
-        # "ghci"
-        # "haskeline"
-        "ghcjs-prim"
-        "ghcjs-th"
-        "ghc-prim"
-        "ghc-prim"
-        "hpc"
-        "integer-gmp"
-        "integer-simple"
-        "mtl"
-        "parsec"
-        "pretty"
-        "process"
-        "rts"
-        "stm"
-        "template-haskell"
-        "terminfo"
-        "text"
-        "time"
-        "transformers"
-        "unix"
-        "Win32"
-        "xhtml"
-      ];
+      #      # https://github.com/input-output-hk/haskell.nix/issues/1177
+      #      nonReinstallablePkgs = [
+      #        "array"
+      #        "array"
+      #        "base"
+      #        "binary"
+      #        "bytestring"
+      #        "Cabal"
+      #        "containers"
+      #        "deepseq"
+      #        "directory"
+      #        "exceptions"
+      #        "filepath"
+      #        "ghc"
+      #        "ghc-bignum"
+      #        "ghc-boot"
+      #        "ghc-boot"
+      #        "ghc-boot-th"
+      #        "ghc-compact"
+      #        "ghc-heap"
+      #        # "ghci"
+      #        # "haskeline"
+      #        "ghcjs-prim"
+      #        "ghcjs-th"
+      #        "ghc-prim"
+      #        "ghc-prim"
+      #        "hpc"
+      #        "integer-gmp"
+      #        "integer-simple"
+      #        "mtl"
+      #        "parsec"
+      #        "pretty"
+      #        "process"
+      #        "rts"
+      #        "stm"
+      #        "template-haskell"
+      #        "terminfo"
+      #        "text"
+      #        "time"
+      #        "transformers"
+      #        "unix"
+      #        "Win32"
+      #        "xhtml"
+      #      ];
 
       myhackages = system: compiler-nix-name: extra-hackage.mkHackageFor system compiler-nix-name (
+        #      myhackages = system: compiler-nix-name: extra-hackage.mkHackagesFor system compiler-nix-name (
         [
           "${inputs.flat}"
           "${inputs.cardano-prelude}/cardano-prelude"
@@ -107,8 +114,7 @@
       );
 
       # GENERAL
-      # supportedSystems = with nixpkgs.lib.systems.supported; tier1 ++ tier2 ++ tier3;
-      supportedSystems = [ "x86_64-linux" ];
+      supportedSystems = with nixpkgs.lib.systems.supported; tier1 ++ tier2 ++ tier3;
       perSystem = nixpkgs.lib.genAttrs supportedSystems;
 
       nixpkgsFor = system:
@@ -182,6 +188,7 @@
           in
           (nixpkgsFor system).haskell-nix.cabalProject' {
             inherit compiler-nix-name;
+            #            inherit (h) extra-hackages extra-hackage-tarballs;
             extra-hackages = [ (import h.extra-hackage) ];
             extra-hackage-tarballs = { myhackage = h.extra-hackage-tarball; };
             src = ./.;
@@ -190,6 +197,10 @@
               allow-newer: size-based:template-haskell
             '';
             modules = [
+              #              ({
+              #                  inherit nonReinstallablePkgs;
+              #                  reinstallableLibGhc = false;
+              #              })
               ({ pkgs, ... }:
                 {
                   packages = {
@@ -198,7 +209,9 @@
                   };
                 }
               )
-            ] ++ [ h.module ];
+            ]
+            #  ++ h.modules;
+            ++ [ h.module ];
             shell = {
               withHoogle = true;
 
@@ -233,8 +246,20 @@
             };
             stdDevEnv = mkDevEnv system; # TODO: parametrize with pkgs rather?
             hls = (plutarch.hlsFor compiler-nix-name system);
+            #            myPlutarchHackages = plutarch.inputs.haskell-nix-extra-hackage.mkHackagesFor system compiler-nix-name [
             myPlutarchHackages = plutarch.inputs.haskell-nix-extra-hackage.mkHackageFor system compiler-nix-name [
+              "${inputs.plutus}/plutus-tx"
               "${inputs.plutarch}"
+              "${inputs.flat}"
+              "${inputs.plutus}/plutus-ledger-api"
+              "${inputs.plutus}/plutus-core"
+              "${inputs.plutus}/word-array"
+              "${inputs.plutus}/prettyprinter-configurable"
+              "${inputs.cardano-base}/cardano-crypto-class"
+              "${inputs.cardano-prelude}/cardano-prelude"
+              "${inputs.protolude}"
+              "${inputs.cardano-crypto}"
+              "${inputs.cardano-base}/binary"
             ];
           in
           pkgs.haskell-nix.cabalProject' (plutarch.applyPlutarchDep pkgs {
@@ -242,6 +267,7 @@
             src = ./.;
             cabalProjectFileName = "cabal.project.plutarch";
             index-state = "2022-06-01T00:00:00Z";
+            #            inherit (myPlutarchHackages) extra-hackages extra-hackage-tarballs modules;
             extra-hackages = [ (import myPlutarchHackages.extra-hackage) ];
             extra-hackage-tarballs = { myhackage = myPlutarchHackages.extra-hackage-tarball; };
             modules = [ myPlutarchHackages.module ];
