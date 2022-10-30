@@ -35,7 +35,7 @@
     };
     cardano-prelude = {
       url =
-        "github:input-output-hk/cardano-prelude/fd773f7a58412131512b9f694ab95653ac430852";
+        "github:input-output-hk/cardano-prelude/bb4ed71ba8e587f672d06edf9d2e376f4b055555";
       flake = false;
     };
     flat = {
